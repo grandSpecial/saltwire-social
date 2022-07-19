@@ -2,6 +2,7 @@ import requests
 from bs4 import BeautifulSoup
 import re
 import json
+import os
 
 bearer_token = 'AAAAAAAAAAAAAAAAAAAAAAMlewEAAAAAl3yqrDPaP3YQJvMgzyGfse4ZxNo%3Dewys4deYQb5QbukLv21J1yTl8pPvPGJZpXUT7Ldd4NMtSnCuQe'
 headers = {'Authorization': f"Bearer {bearer_token}"}

@@ -241,3 +241,9 @@ a {padding-bottom: 10px;}
   overflow-y: auto;
   height: 50%;
 }
+
+#profile-info > p {
+  font-size: 1em;
+  line-height: 1;
+  margin: 0.5rem;
+}

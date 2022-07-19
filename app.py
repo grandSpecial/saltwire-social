@@ -73,11 +73,10 @@ tbl = html.Div([
 		hidden_columns=['username', 'retweet_count', 'reply_count', 'like_count', 'quote_count',
 		'url', 'created_at', 'id', 'conversation_id'],
 		style_header={
-			# 'backgroundColor': 'rgb(30, 30, 30)',
-			# 'color': 'white',
-			# 'textAlign':'center',
-			# 'fontSize': '1em',
-			'display':'none'
+			'backgroundColor': 'rgb(30, 30, 30)',
+			'color': 'white',
+			'textAlign':'center',
+			'fontSize': '1em',
 		},
 		style_data={
 			'backgroundColor': 'rgb(50, 50, 50)',
@@ -144,13 +143,13 @@ app.layout = html.Div(
 												{'label': '@SaltWireNetwork', 'value': 'SaltWireNetwork'},
 												{'label': '@SaltWireToday', 'value': 'SaltWireToday'}
 											],
-											placeholder="All",
+											value="chronicleherald",
 										)
-									],style={'padding':'0px 20px 20px'}
+									]
 								),
 							],
 						),
-						html.Div(id="handle",children=[]),
+						html.Div(id="profile",style={'border':'1px solid white','margin-bottom':'12px'}),
 						tbl,
 					],
 				),
@@ -167,14 +166,24 @@ app.layout = html.Div(
 
 @app.callback(
 	Output("datatable-interactivity", "data"),
+	Output("profile","children"),
 	[Input("handle-dropdown", "value")],
 )
 def update_recent_tweets(handle_dropdown):
+
 	if handle_dropdown:
 		df = latest_tweets[latest_tweets['username']==handle_dropdown]
 	else:
 		df = latest_tweets
-	return df.to_dict('records')
+
+	profile = twitter_profiles[twitter_profiles['username']==handle_dropdown]
+	print(profile)
+	profile_element = html.Div(id="profile-info",children=[
+		html.P(profile.location.item()),
+		html.P(profile.description.item()),
+		html.B(f"{profile.followers_count.item()} Followers"),
+	])
+	return df.to_dict('records'),profile_element
 
 @app.callback(
 	Output('fig', "children"),
@@ -182,6 +191,7 @@ def update_recent_tweets(handle_dropdown):
 	Input('datatable-interactivity', "derived_virtual_data"),
 	Input('datatable-interactivity', "derived_virtual_selected_rows"),
 )
+
 def update_fig(data, rows, derived_virtual_selected_rows):
 	"""
 	latest_tweets keys = ['username', 'retweet_count', 
@@ -193,12 +203,10 @@ def update_fig(data, rows, derived_virtual_selected_rows):
 	dff = pd.DataFrame(data)
 	row = dff.iloc[derived_virtual_selected_rows[0]]
 	twitter_stats = row.to_dict()
-	print(twitter_stats)
 	metrics_keys = ['retweet_count','reply_count','like_count','quote_count']
 	twitter_metrics = " | ".join([f"{i}: {twitter_stats[i]}" for i in metrics_keys])
 	url = row['url'].split("/?")[0]
 	replies = pd.DataFrame(get_replies(twitter_stats['conversation_id']))
-	print("REPLIES",twitter_stats['conversation_id'],replies)
 	metrics = html.Div(id='metrics',children=[
 		html.Div(id='twitter',className="six columns", children=[
 			html.H2("Twitter"),
